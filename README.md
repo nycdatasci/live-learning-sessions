@@ -1,5 +1,4 @@
-### Live Learning Sessions 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+### Live Learning Sessions  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 This is the repository that contains the material of the live learning sessions of the NYC Data Science Academy [Online Bootcamp](https://nycdatascience.com/online-data-science-bootcamp/). 
 <hr> 
