@@ -6,5 +6,5 @@ This is the repository that contains the material of the live learning sessions 
 
 Please find the structure of the structure of the content below:
 
-- [Choosing an Effective Visualization](https://github.com/nycdatascience/live-learning-sessions/tree/master/choosing-an-effective-visualization)
-- [Your Toolkits to Prepare for SQL Interview](https://github.com/nycdatascience/live-learning-sessions/tree/master/your-toolkits-to-prepare-for-sql-interview)
+- [Choosing an Effective Visualization](https://github.com/nycdatasci/live-learning-sessions/tree/master/choosing-an-effective-visualization)
+- [Your Toolkits to Prepare for SQL Interview](https://github.com/nycdatasci/live-learning-sessions/tree/master/your-toolkits-to-prepare-for-sql-interview)
