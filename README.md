@@ -7,3 +7,4 @@ Please find the structure of the structure of the content below:
 
 - [Choosing an Effective Visualization](https://github.com/nycdatasci/live-learning-sessions/tree/master/choosing-an-effective-visualization)
 - [Your Toolkits to Prepare for SQL Interview](https://github.com/nycdatasci/live-learning-sessions/tree/master/your-toolkits-to-prepare-for-sql-interview)
+- [A/B Testing with Permutation Test](https://github.com/nycdatasci/live-learning-sessions/tree/master/ab-testing-with-permutation-test)
