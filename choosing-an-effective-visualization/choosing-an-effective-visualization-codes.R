@@ -6,7 +6,7 @@ library(lubridate)
 library(grid)
 library(plotly)
 
-tweets=read.csv('Tweets.csv',stringsAsFactors = F)
+tweets=read.csv('https://graderdata.s3.amazonaws.com/Tweets.csv',stringsAsFactors = F)
 
 bar_data=tweets %>%
   filter(airline_sentiment=='negative') %>% 
@@ -252,7 +252,7 @@ economics %>%
                                       gp=gpar(col="steelblue2", fontsize=13,fontface='bold'))))
 
 # bnames
-bnames_sub=read.csv('bnames_sub.csv')
+bnames_sub=read.csv('https://graderdata.s3.amazonaws.com/bnames_sub.csv')
 
 bnames_sub %>% 
   ggplot(aes(x=year,y=total,color=sex))+
