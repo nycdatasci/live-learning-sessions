@@ -1,12 +1,12 @@
 #
-# This is a Shiny web application.
-# You can run the application by clicking the 'Run App' button above.
+# This is a R Shiny App for "A/B Testing with Permutation Test"
+# You can run this application by clicking the 'Run App' button above.
 # Find out more about Shiny at http://shiny.rstudio.com/
 #
 
 library(shiny)
 
-source("help.R")
+source("functions.R")
 
 # Define UI
 ui = fluidPage(
