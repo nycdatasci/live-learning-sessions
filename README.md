@@ -10,3 +10,4 @@ Please find the structure of the structure of the content below:
 - [A/B Testing with Permutation Test](https://github.com/nycdatasci/live-learning-sessions/tree/master/ab-testing-with-permutation-test)
 - [Machine Learning and Customer Analytics](https://github.com/nycdatasci/live-learning-sessions/tree/master/machine-learning-and-customer-analytics)
 - [Best Practices in Python Coding](https://github.com/nycdatasci/live-learning-sessions/tree/master/best-practices-in-python-coding)
+- [Examining Imputation of Race for Mothers in CDC Natality Records](https://github.com/nycdatasci/live-learning-sessions/tree/master/examining-cdc-natality-records)
