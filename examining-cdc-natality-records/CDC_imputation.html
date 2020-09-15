@@ -381,7 +381,7 @@ summary {
 library(readr)
 library(ggplot2)</code></pre>
 <pre class="r"><code># Read in the dataset as a tibble using readr::read_csv 
-nat18 = read_csv('data/Birth18_10per.csv')
+nat18 = read_csv('https://graderdata.s3.amazonaws.com/Birth18_10per.csv')
 # Look at some of the features
 colnames(nat18)[1:50]</code></pre>
 <pre><code>##  [1] &quot;birth_year&quot;                     &quot;birth_month&quot;                   
@@ -785,7 +785,7 @@ nat_prep_pipeline = function(filepath){
   natdf %&gt;% nat_col_clean() %&gt;% nat_fathers_race_assigned()
 }
 
-nat18_2 = nat_prep_pipeline('data/Birth18_10per2.csv')
+nat18_2 = nat_prep_pipeline('https://graderdata.s3.amazonaws.com/Birth18_10per2.csv')
 glimpse(nat18_2)</code></pre>
 <pre><code>## Rows: 380,065
 ## Columns: 10
