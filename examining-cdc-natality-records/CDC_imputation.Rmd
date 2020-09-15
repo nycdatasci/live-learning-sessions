@@ -20,7 +20,7 @@ In 2018, the CDC recorded approximately 3,800,000 births; the records can be fou
 For these notes, our goal is not to give a full treatise on every distinction between the populations of mother's with and without race being recorded, but instead to provide evidence that the current imputation practice may benefit from review since it is apparent that there are distinctions and that the current system may tend to bias the data towards labelling the unknown race as "white", the majority race recorded, though this cannot be proved without knowing the truth of the missing records.
 
 ## Loading the Dataset and Libraries
-For convenience, the majority of exploration in these notes will be from a randomly selected 10% of the 2018 CDC data, found in `data/Birth18_10per.csv`. The potential bias introduced through such subsetting is discussed below, as is evidence that the over 380,000 records we will use is reasonably representative for our purposes.
+For convenience, the majority of exploration in these notes will be from a randomly selected 10% of the 2018 CDC data, found at  `https://graderdata.s3.amazonaws.com/Birth18_10per.csv`. The potential bias introduced through such subsetting is discussed below, as is evidence that the over 380,000 records we will use is reasonably representative for our purposes.
 
 ```{r libraries, , warning=FALSE}
 library(dplyr)
