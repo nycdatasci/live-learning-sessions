@@ -1,0 +1,3 @@
+### Examining Imputation of Race for Mothers in CDC Natality Records
+
+- In 2018, the CDC recorded approximately 3,800,000 births. Among the over 100 features recorded per birth, one of the features tracks the race of the mother with roughly 6.3% (on the order of 250,000) of those records imputed. In this talk, we investigate the legitimacy of this imputation method, discuss the bias, and consider the populations of those mothers whose race is not reported versus those where it is.

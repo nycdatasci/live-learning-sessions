@@ -1,317 +1,476 @@
 ---
-title: "A/B Testing with Permutation Test"
-subtitle: "Live Learning Session<br>Interactive Distance Learning<br>Data Science Bootcamp"
-author: "Carlos Afonso (Instructor) -- NYC Data Science Academy"
-date: "August, 2020"
-output: slidy_presentation
+title: "A/B Testing<br>with Permutations (in R)"
+subtitle: "<br>Live Learning Session<br>Interactive Distance Learning<br>Data Science Bootcamp"
+author: "Carlos Afonso (Instructor) --- NYC Data Science Academy"
+date: "<br>August 27, 2020"
+output:
+  ioslides_presentation:
+    incremental: true
+    widescreen: true
 ---
 
-# Intro - A/B Test
+## Outline {.build}
 
-<img src="ab-test.svg" alt="A/B Test" style="max-height:40vh;">
+**A/B Testing**
 
-**A/B Test:** an experiment to compare two competing **options** (A, B) to determine if one is **better** than the other.
+- What? & Why?
+- Examples
+- How? (Steps)
 
-**Options:** treatments (medical), designs (ad, web), products, prices, etc.
+**Permutation Test**
 
-**Better?** Answer with **hypothesis testing**, using a **permutation test**.
+- What? & Why?
+- How? (Steps)
+- Hypothesis Testing
 
-**Example:** Microsoft / Bing example with 12% lift, $100 million revenue increase ([HBR](https://hbr.org/2017/09/the-surprising-power-of-online-experiments))
+**Code**
 
-# Intro - A/B Test - Nomenclature
+***R Shiny App***
 
-<img src="ab-test.svg" alt="A/B Test" style="max-height:40vh;">
+# A/B Test -- What? & Why?
 
-**Treatment:** something (e.g., drug) to which a subject is exposed
+## A/B Test -- What? & Why? {.build}
 
-**Control group:** group of subjects exposed to no treatment (or standard treatment)
+**What?** An experiment to compare two competing ***options*** (A, B).
 
-**Treatment group:** group of subjects exposed to the treatment
+- ***Options:*** treatments (medical), designs (ad, web), products, prices, etc.
 
-# Intro - A/B Test - Steps
+**Why?** To determine if the options are ***different***.
 
-<img src="ab-test.svg" alt="A/B Test" style="max-height:40vh;">
+- ***Different*** in a statistical sense (hypothesis testing, permutation test).
 
-1. Set of all subjects.
-2. **Randomization:** Randomly assign the subjects to the two groups (A, B).
-3. Expose the subjects to the different options (A, B), and measure the results. Define a **test statistic** to compare the groups.
-4. **Hypothesis testing:** determine is the observed results are statistically significant or not. This can be done with a **permutation test**.
+**Why?** To determine what's the ***better*** option.
 
-# Intro - A/B Test - Key Points
+- ***Better*** for the question/goal at hand (customer acquisition, profit, etc).
 
-<img src="ab-test.svg" alt="A/B Test" style="max-height:40vh;">
+# A/B Test -- Examples?
 
-**Test statistic:** metric used to measure the effect of the treatment. Example above: A-B = 30% (A = 70%, B = 40%).
+## A/B Test -- Examples? -- General {.build}
 
-**Randomization:** process of randomly assigning subjects to the two groups. Because of it, any difference between the two groups must be due to one of two things:
+**Two soil treatments:** which one promotes ***better seed germination***?
 
-1. Random chance in assignment of subjects
-2. A real difference between A and B
+**Two web headlines:** which one produces ***more clicks***?
 
-# Intro - Permutation Test
+**Two web ads:** which one generates ***more conversions***?
 
-<img src="ab-perm.svg" alt="Permutation Test" style="max-height:40vh;">
+**Two prices:**
+
+- which one yields a ***higher net profit***?
+- which one leads to ***more new costumers***?
+
+**Two therapies:** which one is ***more effective at suppressing cancer***?
+
+- **Control group:** subjects exposed to ***no treatment*** or ***standard treatment***.
+- **Treatment group:** subjects exposed to the ***new treatment***.
+
+## A/B Test -- Examples? -- Specific {.build}
+
+**Microsoft (Bing):**
+
+- one A/B test
+- changing the way the Bing search engine displayed ad headlines
+- led to a 12% increase in revenue
+- that's more than $100 million per year in the US alone
+
+**Amazon:**
+
+- moving credit card offers from its home page to the shopping cart page
+- boosted profits by tens of millions of dollars annually
+
+**Google & Bing:** only 10% to 20% of experiments generate positive results
+
+<div style="font-size:80%">
+Reference: [The Surprising Power of Online Experiments (Harvard Business Review, 2017)](https://hbr.org/2017/09/the-surprising-power-of-online-experiments)
+</div>
+
+# A/B Test -- How?
+
+## A/B Test -- How? -- Didactic Example {.build}
+
+A/B test results (e.g., in a web context):
+
+<div style="line-height:50%; margin:auto; margin-bottom:3%; width:50%;">
+  |              | Option A | Option B |
+  | :----------- | -------: | -------: |
+  | Total        |       10 |       10 |
+  | No           |        3 |        6 |
+  | Yes          |        7 |        4 |
+  | Yes Rate (%) |     70 % |     40 % |
+</div>
+
+**Test statistic:** Yes Rate Difference (A - B) (%) = 70% - 40% = 30 %
+
+**Question:** Is this difference (statistically) significant?
+
+(Note: this example uses small/unrealistic numbers for didactic purposes.)
+
+## A/B Test -- How? -- Steps {.build}
+
+( **0. Idea & Definition:** question, goal, data/subjects, options, test statistic. )
+
+**1. Subjects:** Set of all subjects.
+
+**2. Randomization:** Randomly assign subjects to the two groups (A, B).
+
+**3. Results:** Expose subjects to the different options (A, B), measure results, and compute **test statistic**.
+
+**4. Hypothesis testing:** determine if the observed results are statistically significant. This can be done with a **permutation test**.
+
+( **5. Action/Decision:** based on test results. )
+
+## A/B Test -- How? -- Steps 1 to 3 (diagram)
+
+<iframe src="figures/ab-steps-fig.html"></iframe>
+
+## A/B Test -- How? -- Steps 1 to 3 (diagram, subjects)
+
+<iframe src="figures/ab-subjects-fig.html"></iframe>
+
+## A/B Test -- How? -- Hypothesis Testing (Step 4) {.build .smaller}
+
+(**Step 3:** We observed a 30% difference between A and B. **Step 4:** Is it significant?)
+
+Thanks to **randomization** (step 2), any observed difference between A and B must be due to either:
+
+- Random chance (e.g., in assignment of subjects), or
+- A true difference between A and B
+
+**Hypothesis testing:** Is random chance a reasonable explanation for the observed effect?
+
+<div style="line-height:10%; margin:auto; margin-bottom:1%; width:80%;">
+  |                            | **Two-way** hypothesis test        | **One-way** hypothesis test              |
+  | :------------------------- | :--------------------------------- | :--------------------------------------- |
+  | **Null hypothesis**        | $A = B$ (A and B are the same)     | $A \leq B$ (A is worst or the same as B) |
+  | **Alternative hypothesis** | $A \neq B$ (A and B are different) | $A > B$ (A is better than B)             |
+</div>
+
+**Hypothesis test:**
+
+- Assumes that the Null hypothesis is true
+- Creates the corresponding "null model" (a probability model)
+- Tests whether the observed effect is a reasonable outcome of that model
+  - Is the observed effect within the random variability of the "null model"?
+
+## A/B Test -- How? -- Hypothesis Testing (p-value) {.build .smaller}
+
+**P-value:** given a chance model that embodies the null hypothesis, the p-value is the probability of obtaining results as unusual/extreme as the observed result.
+
+**Significance Level (alpha):** the probability threshold of "unusualness" (typically 0.05 or 5%). Must be defined before the experiment.
+
+- Probability of type I error (false positive).
+
+**Decision:**
+
+- `p-value > alpha`: retain the null hypothesis -- observed effect due to chance
+- `p-value < alpha`: reject the null hypothesis -- observed effect is real/significant
+
+**Type I error (false positive)**: Mistakenly concluding that an effect is real (when it is due to chance).
+
+**Type II error (false negative)**: Mistakenly concluding that an effect is due to chance (when it is real)
+
+# Permutation Test
+
+## Permutation Test -- What? & Why? {.build .smaller}
+
+**What? & Why?** Permutation test is a resampling procedure used for hypothesis testing.
 
 **Resampling:** repeatedly sample values from the observed data to assess a statistic's random variability.
+
+Two main types of resampling procedures:
+
+- ***Boostrap:*** resampling **with** replacement, used to assess reliability of an estimate.
+- ***Permutation:*** resampling **without** replacement, used for hypothesis testing.
 
 **Permutation Test:** 
 
 * A resampling procedure used for hypothesis testing
 * Process for combining two (or more) data samples together, and randomly (or exhaustively) reallocating the observations to resamples
+* A way to create the "null model", and compute the p-value
 
-# Intro - Permutation Test - Steps
+## Permutation Test -- How? -- Steps {.build .smaller}
 
-<img src="ab-perm.svg" alt="Permutation Test" style="max-height:40vh;">
+**Step 0:** A/B test results
 
-1. Combine all A/B test results (A & B) in a single dataset (a "bag").
-2. Shuffle the "bag".
-3. Randomly draw (without replacement) a resample of the size of group A.
-4. Randomly draw (without replacement) a resample of the same size as group B (the remainder).
-5. Record the test statistic for the resamples.
-6. Repeat the previous steps (2 to 5) sufficient large number of time (`N`) to yield a permutation distribution of the test statistic. Each time is a different permutation.
+**Step 1:** Combine all A/B test results (A & B) in a single dataset (a "bag").
 
-# Intro - A/B Test with Permutation Test
+**Steps 2 to 5: Do one permutation:**
 
-<img src="ab-test.svg" alt="Permutation Test" style="max-height:35vh;">
+- **Step 2:** Shuffle the "bag".
+- **Step 3:** Randomly draw (without replacement) a resample of the size of group A.
+- **Step 4:** Randomly draw (without replacement) a resample of the same size as group B (the remainder).
+- **Step 5:** Record the test statistic for the A and B resamples.
 
-<hr>
+**Step 6: Done many permutations:**
 
-<img src="ab-perm.svg" alt="Permutation Test" style="max-height:35vh;">
+- Repeat the previous steps (2 to 5) a sufficient large number of times to yield a permutation distribution of the test statistic. Each time is a different permutation.
 
-# Example - A/B Test - Results
+**Hypothesis testing:** Use permutation results to compute the p-value as the ratio of values that are as or more extreme than the observed test statistic (in the A/B test result).
 
-<img src="ab-test.svg" alt="A/B Test" style="max-height:40vh;">
+## Permutation Test -- Steps (diagram)
 
-Results from an A/B test experiment (e.g., in an e-commerce/web context):
+<iframe src="figures/permutation-steps-fig.html"></iframe>
 
-|                     | Option A | Option B |
-| :------------------ | -------: | -------: |
-| Total               |       10 |       10 |
-| No Conversion       |        3 |        6 |
-| Conversion          |        7 |        4 |
-| Conversion Rate (%) |     70 % |     40 % |
+## Permutation Test -- Steps (diagram, subjects)
 
-**Test statistic:** Conversion Rate Difference (A - B) (%) = 30 %
+<iframe src="figures/permutation-subjects-fig.html"></iframe>
 
-**Question:** Is this difference (statistically) significant?
+## Permutation Test -- Hypothesis Testing {.build}
 
-(Note: this example uses small numbers for didactic purposes.)
+Summary (counts) table of results from 100 permutations:
 
-# Example - A/B Test - Code
+<div style="line-height:50%; margin:auto; margin-bottom:5%; width:50%;">
+  |                    |     |     |     |     |     |     |
+  | :----------------- | --: | --: | --: | --: | --: | --: |
+  | Permutation Result | -50 | -30 | -10 |  10 |  30 |  50 |
+  | Counts             |   4 |  12 |  30 |  33 |  16 |   5 |
+</div>
 
-Define minimum set of variables sufficient to derive all A/B test results:
+**Two-way hypothesis test** (Null: $A = B$, Alternative: $A \neq B$)
+
+- Number of extreme values: 37 (= 4 + 12 + 16 + 5)
+- Ratio of extreme values (p-value): **0.37** (= 37 / 100)
+
+**One-way hypothesis test** (Null: $A \leq B$, Alternative: $A > B$)
+
+- Number of positive extreme values: 21 (= 16 + 5)
+- Ratio of positive extreme values (p-value): **0.21** (= 21 / 100)
+
+## Permutation Test -- Bar Plots
+
+<div style="line-height:50%; margin:auto; margin-bottom:5%; width:50%;">
+  |                    |     |     |     |     |     |     |
+  | :----------------- | --: | --: | --: | --: | --: | --: |
+  | Permutation Result | -50 | -30 | -10 |  10 |  30 |  50 |
+  | Counts             |   4 |  12 |  30 |  33 |  16 |   5 |
+</div>
+
+<img src="figures/bar-plot-count.png" style="max-width:49%;"> <img src="figures/bar-plot-density.png" style="max-width:49%;">
+
+## Permutation Test -- Histogram Plots
+
+<div style="line-height:50%; margin:auto; margin-bottom:5%; width:50%;">
+  |                    |     |     |     |     |     |     |
+  | :----------------- | --: | --: | --: | --: | --: | --: |
+  | Permutation Result | -50 | -30 | -10 |  10 |  30 |  50 |
+  | Counts             |   4 |  12 |  30 |  33 |  16 |   5 |
+</div>
+
+<img src="figures/hist-plot-count.png" style="max-width:49%;"> <img src="figures/hist-plot-density.png" style="max-width:49%;">
+
+## Permutation Test -- Density Plot (Probability)
+
+<div style="line-height:50%; margin:auto; margin-bottom:5%; width:50%;">
+  |                    |     |     |     |     |     |     |
+  | :----------------- | --: | --: | --: | --: | --: | --: |
+  | Permutation Result | -50 | -30 | -10 |  10 |  30 |  50 |
+  | Counts             |   4 |  12 |  30 |  33 |  16 |   5 |
+</div>
+
+<img src="figures/density-plot.png" style="display:block; margin:auto; max-width:60%;">
+
+# Code
+
+## Code -- A/B Test -- Didactic Example {.smaller}
 
 ```{r}
-# Total counts by group
-a_all = 10
-b_all = 10
+# Define minimum set of variables that fully define the A/B test results
+t = 20     # Total number of subjects (A + B)
+a = 10     # Number of subjects in group A
+b = 10     # Number of subjects in group B
+a_yes = 7  # Number of successes (yes) in group A
+b_yes = 4  # Number of successes (yes) in group B
 
-# Conversion (success) counts by group
-a_yes = 7
-b_yes = 4
+# Compute remaining A/B test results (using the variables above)
+a_no = a - a_yes                # Number of failures (no) in group A
+b_no = b - b_yes                # Number of failures (no) in group B
+t_yes = a_yes + b_yes           # Total (A + B) successes (yes)
+t_no  = a_no  + b_no            # Total (A + B) failures (no)
+a_yes_pc = 100 * a_yes / a      # Percentage of successes (yes) in group A
+b_yes_pc = 100 * b_yes / b      # Percentage of successes (yes) in group B
+ab_yes_pc = a_yes_pc - b_yes_pc # A/B Test Statistic: Percentage of successes (yes) difference (A - B)
+
+cat('Observed Yes Rate (%):  A:', a_yes_pc, ',  B:', b_yes_pc, ',  A-B:', ab_yes_pc)
 ```
 
-Define the remaining A/B test results:
-
-```{r}
-# No Conversion (failure) counts by group
-a_no = a_all - a_yes
-b_no = b_all - b_yes
-
-# Total conversions (yes) and no conversions (no)
-n_yes = a_yes + b_yes
-n_no  = a_no  + b_no
-
-# Conversion rates (%) by group
-a_yes_pct = 100 * a_yes / a_all
-b_yes_pct = 100 * b_yes / b_all
-
-# Statistic: Conversion rate difference (A-B) (%)
-ab_yes_pct_diff = a_yes_pct - b_yes_pct
-
-cat('Conversion Rate (%)',
-    '\n    A:', a_yes_pct, 
-    '\n    B:', b_yes_pct,
-    '\n  A-B:', ab_yes_pct_diff)
-```
-
-# Example - Permutation Test - Steps 1 to 5 (`One` Permutation)
+## Code -- Permutation Test -- One Permutation {.smaller}
 
 ```{r}
 set.seed(0) # for reproducible results
+bag1 = c(rep(1, t_yes), rep(0, t_no)) # Step 1: Combine all results in a bag
+bag2 = sample(bag1)                   # Step 2: Shuffle the bag
+a_rs = bag2[1:a]                      # Step 3: Random sample of size A
+b_rs = bag2[(a+1):(a+b)]              # Step 4: Random sample of size B
 
-# Step 1: Combine all results in a bag
-bag1 = c(rep(1, n_yes), rep(0, n_no))
+# Step 5: Compute the test statistic (difference in proportion of 1s)
+a_yes_pc_rs = 100 * sum(a_rs) / a
+b_yes_pc_rs = 100 * sum(b_rs) / b
+ab_yes_pc_rs = a_yes_pc_rs - b_yes_pc_rs
 
-# Step 2: Shuffle the bag
-bag2 = sample(bag1)
-
-# Step 3: Draw a random sample of size A
-a_rs = bag2[1:a_all]
-
-# Step 4: Draw a random sample of size B (the remainder)
-b_rs = bag2[(a_all+1):length(bag2)]
-
-# Step 5: Record the statistic (difference in proportion of 1s)
-a_yes_pct_rs = 100 * sum(a_rs) / length(a_rs)
-b_yes_pct_rs = 100 * sum(b_rs) / length(b_rs)
-ab_yes_pct_diff_rs = a_yes_pct_rs - b_yes_pct_rs
-
-cat('(1) Bag         :', bag1,
-    '\n(2) Bag shuffled:', bag2,
-    '\n(3) A resample  :', a_rs,
-    '\n(4) B resample  :', rep(' ', a_all), b_rs,
-    '\n(5) Resample Conversion Rate (%)',
-    '\n        A:', a_yes_pct_rs, 
-    '\n        B:', b_yes_pct_rs,
-    '\n      A-B:', ab_yes_pct_diff_rs)
-```
-```{r}
-cat('Observed Conversion Rate (%):',
-    '\n    A:', a_yes_pct,
-    '\n    B:', b_yes_pct,
-    '\n  A-B:', ab_yes_pct_diff)
+cat('(1) Bag         :', bag1, 
+    '\n(2) Bag shuffled:', bag2, 
+    '\n(3) A resample  :', a_rs, 
+    '\n(4) B resample  :', rep(' ', a), b_rs, 
+    '\n(5) Resample Yes Rate (%):  A:', a_yes_pc_rs, ',  B:', b_yes_pc_rs, ',  A-B:', ab_yes_pc_rs,
+    '\n    Observed Yes Rate (%):  A:', a_yes_pc, ',  B:', b_yes_pc, ',  A-B:', ab_yes_pc)
 ```
 
-# Example - Permutation Test - Step 6 (`N` Permutations)
+## Code -- Permutation Test -- Many Permutations {.smaller}
 
 ```{r}
 set.seed(1) # for reproducible results
 
-# Step 1: Combine all results in a bag
-bag = c(rep(1, n_yes), rep(0, n_no))
+bag = c(rep(1, t_yes), rep(0, t_no)) # Step 1: Combine all results in a bag
 
-# Step 6: Repeat steps 2 to 5 a "large" number of times (n_p)
-n_p = 100 # number of permutations
-perm_res = rep(0, n_p) # vector for permutation results
-for (i in 1:n_p) {
-  # Step 2: Shuffle the bag
-  bag = sample(bag)
-  
-  # Step 3: Draw a random sample of size A
-  all_ind = seq(1, length(bag))
-  a_ind = sample(all_ind, a_all)
-  a_rs = bag[a_ind]
-  
-  # Step 4: Draw a random sample of size B (the remainder)
-  b_ind = setdiff(all_ind, a_ind)
-  b_rs = bag[b_ind]
-  
-  # Step 5: Record the statistic (difference in proportion of 1s)
-  a_yes_pct_rs = 100 * sum(a_rs) / length(a_rs)
-  b_yes_pct_rs = 100 * sum(b_rs) / length(b_rs)
-  perm_res[i] = a_yes_pct_rs - b_yes_pct_rs
-  cat('Permutation', i, ': A-B (%) =', perm_res[i], '\n')
+# Step 6: Repeat steps 2 to 5 a "large" number of times (p)
+p = 100              # number of permutations
+perm_res = rep(0, p) # vector for permutation results
+for (i in 1:p) {
+  bag = sample(bag)                               # Step 2: Shuffle the bag
+  a_rs = bag[1:a]                                 # Step 3: Random sample of size A
+  b_rs = bag[(a+1):(a+b)]                         # Step 4: Random sample of size B
+  perm_res[i] = 100*sum(a_rs)/a - 100*sum(b_rs)/b # Step 5: Compute the test statistic
 }
+
+perm_res
 ```
-```{r}
-cat('Observed A/B Test statistic: A-B (%) =', ab_yes_pct_diff)
-```
 
-# Example - Permutation Test - Hypothesis testing
-
-**Question:** How extreme is the (observed) A/B test statistic compared with the permutation results?
-
-**Solution:** How many permutation results are as or more extreme than the (observed) A/B test statistic?
+## Code -- Permutation Test -- Hypothesis Testing {.smaller}
 
 ```{r}
 table(perm_res)
 ```
 ```{r}
-extreme_count = sum(abs(perm_res) >= abs(ab_yes_pct_diff))
-extreme_ratio = extreme_count / n_p
-cat("Number of permutations           :", n_p,
-    "\nNumber of extreme values         :", extreme_count,
-    "\nRatio of extreme values (p-value):", extreme_ratio)
+# Two-way hypothesis test (Null: A = B, Alternative: A != B)
+extreme_count = sum(abs(perm_res) >= abs(ab_yes_pc))
+extreme_ratio = extreme_count / p
+# One-way hypothesis test (Null: A =< B, Alternative: A > B)
+pos_extreme_count = sum(perm_res >= ab_yes_pc)
+pos_extreme_ratio = pos_extreme_count / p
+cat("Number of permutations                            :", p,
+    "\nNumber of extreme values                          :", extreme_count,
+    "\nRatio of extreme values (two-way p-value)         :", extreme_ratio,
+    "\nNumber of positive extreme values                 :", pos_extreme_count,
+    "\nRatio of positive extreme values (one-way p-value):", pos_extreme_ratio)
 ```
 
-# Example - Permutation Test - Hypothesis testing - Bar plot
+## Code -- Permutation Test -- Bar Plot (Counts)
 
-```{r}
+```{r, echo=FALSE}
+table(perm_res)
+```
+```{r, echo=FALSE}
 counts = table(perm_res)
-x = abs(as.numeric(names(counts)))
-colors = ifelse(x < abs(ab_yes_pct_diff), 'gray', 'orange')
-title = paste("Perm. =", n_p, 
-              ", Extreme count =", extreme_count,
-              ", P-value =", extreme_ratio)
-x_lab = paste("A/B Test Statistic: A - B (%)\n",
-              "(observed:", ab_yes_pct_diff, "%)")
-y_lab = "Count"
-barplot(counts, col=colors, main=title, xlab=x_lab, ylab=y_lab)
-y_lab = "Density"
-barplot(counts / n_p, col=colors, main=title, xlab=x_lab, 
-        ylab=y_lab)
+colors = ifelse(abs(as.numeric(names(counts))) < abs(ab_yes_pc), 'gray', 'orange')
+title = paste("Perm. =", p, ", Extreme count =", extreme_count, ", P-value =", extreme_ratio)
+x_lab = paste("A/B Test Statistic: A - B (%)\n(observed:", ab_yes_pc, "%)")
+barplot(counts, col=colors, main=title, xlab=x_lab, ylab="Count")
 ```
 
-# Example - Permutation Test - Hypothesis testing - Histogram plot
+## Code -- Permutation Test -- Bar Plot (Probability)
 
-```{r}
+```{r, echo=FALSE}
+table(perm_res)
+```
+```{r, echo=FALSE}
+barplot(counts / p, col=colors, main=title, xlab=x_lab, ylab="Density")
+```
+
+## Code -- Permutation Test -- Histogram (Counts)
+
+```{r, echo=FALSE}
+table(perm_res)
+```
+```{r, echo=FALSE}
 h = hist(perm_res, breaks = "Scott", plot=FALSE)
 b_left = abs(h$breaks[-length(h$breaks)])
 b_right = abs(h$breaks[-1])
 b_max = ifelse(b_left > b_right, b_left, b_right)
-colors = ifelse(b_max < abs(ab_yes_pct_diff), 'gray', 'orange')
-title = paste("Perm. =", n_p, 
+colors = ifelse(b_max < abs(ab_yes_pc), 'gray', 'orange')
+title = paste("Perm. =", p, 
               ", Extreme count =", extreme_count,
               ", P-value =", extreme_ratio)
 x_lab = paste("A/B Test Statistic: A - B (%)\n",
-              "(observed:", ab_yes_pct_diff, "%)")
-y_lab = "Count"
-plot(h, col=colors, main=title, xlab=x_lab, ylab=y_lab)
-abline(v = ab_yes_pct_diff, col = 'red', lwd = 3)
-abline(v = -ab_yes_pct_diff, col = 'red', lty = 2, lwd = 3)
-plot(h, col=colors, freq=FALSE, main=title, xlab=x_lab)
-abline(v = ab_yes_pct_diff, col = 'red', lwd = 3)
-abline(v = -ab_yes_pct_diff, col = 'red', lty = 2, lwd = 3)
+              "(observed:", ab_yes_pc, "%)")
+plot(h, col=colors, main=title, xlab=x_lab, ylab="Count")
+abline(v = ab_yes_pc, col = 'red', lwd = 3)
+abline(v = -ab_yes_pc, col = 'red', lty = 2, lwd = 3)
 ```
 
-# Example - Permutation Test - Hypothesis testing - Density plot
+## Code -- Permutation Test -- Histogram (Prob.)
 
-```{r}
-title = paste("Perm. =", n_p, 
+```{r, echo=FALSE}
+table(perm_res)
+```
+```{r, echo=FALSE}
+plot(h, col=colors, freq=FALSE, main=title, xlab=x_lab)
+abline(v = ab_yes_pc, col = 'red', lwd = 3)
+abline(v = -ab_yes_pc, col = 'red', lty = 2, lwd = 3)
+```
+
+## Code -- Permutation Test -- Density Plot (Prob.)
+
+```{r, echo=FALSE}
+table(perm_res)
+```
+
+```{r, echo=FALSE}
+title = paste("Perm. =", p, 
               ", Extreme count =", extreme_count,
               ", P-value =", extreme_ratio)
 x_lab = paste("A/B Test Statistic: A - B (%)\n",
-              "(observed:", ab_yes_pct_diff, "%)")
+              "(observed:", ab_yes_pc, "%)")
 d = density(perm_res, adjust=2)
 plot(d, main=title, xlab=x_lab)
-xc = abs(ab_yes_pct_diff)
+xc = abs(ab_yes_pc)
 c1 = (d$x < -xc) # extreme negative values (left)
 c2 = (abs(d$x) < xc) # non-extreme values
 c3 = (d$x > xc) # extreme positive values (right)
 polygon(c(d$x[c1], -xc), c(d$y[c1], 0), col='orange')
 polygon(c(-xc, d$x[c2], xc), c(0, d$y[c2], 0), col='gray')
 polygon(c(xc, d$x[c3]), c(0, d$y[c3]), col='orange')
-abline(v = ab_yes_pct_diff, col = 'red', lwd = 3)
-abline(v = -ab_yes_pct_diff, col = 'red', lty = 2, lwd = 3)
+abline(v = ab_yes_pc, col = 'red', lwd = 3)
+abline(v = -ab_yes_pc, col = 'red', lty = 2, lwd = 3)
 ```
 
-# General Solution - Same Example
+## Code -- General Solution
+
+The previous code has been consolidated into functions in the `functions.R` script.
+
+- The function `ab_permutation_test` can be used to perform the whole process of a Permutation Test for a given A/B Test (examples in the next slides).
 
 ```{r}
-source("help.R")
+source("functions.R")
 ```
 
+## Code -- General Solution -- Didactic Example {.smaller}
+
 ```{r}
-a_all = 10
-b_all = 10
-a_yes = 7
-b_yes = 4
-n_p = 100
-set.seed(1)
-ab_permutation_test(a_all, b_all, a_yes, b_yes, n_p, verbose=TRUE)
+ab_permutation_test(a_all=10, b_all=10, a_yes=7, b_yes=4, n_p=100, verbose=TRUE, random_seed=1)
 ```
 
-# General Solution - Other Example
+## Code -- General Solution -- Other Example {.smaller}
 
 ```{r}
-a_all = 1000
-b_all = 2000
-a_yes = 30
-b_yes = 100
-n_p = 1000
-set.seed(1)
-ab_permutation_test(a_all, b_all, a_yes, b_yes, n_p, verbose=TRUE)
+ab_permutation_test(a_all=1000, b_all=2000, a_yes=30, b_yes=100, n_p=1000, verbose=TRUE, random_seed=1)
 ```
 
 # R Shiny App
+
+## R Shiny App
+
+You can explore A/B Testing with Permutation Test (i.e., the results of the `ab_permutation_test` function) by using the R Shiny App defined in the `app.R` file, available in the [presentation GitHub repository](https://github.com/nycdatasci/live-learning-sessions/tree/master/ab-testing-with-permutation-test).
+
+Once you have the presentation files in your computer, you can launch the app as usual in RStudio (open the `app.R` file in RStudio and press the `Run App` button).
+
+Alternatively, you can use the following code to run the app in your RStudio (this code downloads the app code from GitHub).
+
+```{r, eval=FALSE}
+library(shiny)
+
+runGitHub(repo="live-learning-sessions", username="nycdatasci", 
+          subdir="ab-testing-with-permutation-test")
+```
+
+# Questions?
+
+
