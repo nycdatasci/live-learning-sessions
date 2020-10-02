@@ -41,6 +41,6 @@ There are three main files that you need to read and understand:
 2. `layouts.py` where you define the structure of each page. There are three major packages used when building the layout of the app:
     - `dash_html_components` contains all the basic html elements like `<h1>` to `<h6>`, `<div>`, `<p>`... More details can be found on the [documentation](https://dash.plotly.com/dash-html-components) page.
     - `dash-core-components` is a set of interactive components written by the Dash team, i.e dropdown, slider, input, checkboxes... More details can be found on the [documentation](https://dash.plotly.com/dash-core-components) page.
-    - `dash_bootstrap_components` connect the [bootstrap](https://getbootstrap.com/) with Dash components so that your app has a modern look.
+    - `dash_bootstrap_components` connect the [bootstrap](https://getbootstrap.com/) with Dash components so that your app has a modern look. More details can be found on the [documentation](https://dash-bootstrap-components.opensource.faculty.ai/docs/) page.
     -  `layouts.py` file is where you combine different html elements and other interactive components to build the layout of the app. It will look messy if you are building a complicated app. It is better to use a bracket colorizer to help you keep the indexing consistent.
 3.  `callbacks.py` where all the interactions happen, i.e how to update the graph when the user changes the value in the dropdown menu.
