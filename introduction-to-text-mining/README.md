@@ -7,8 +7,6 @@
 
 `pip install nltk`
 
-**Optional**
-
 Once installed, you can run in either Python or a Jupyter notebook:
 ```
 import nltk
