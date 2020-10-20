@@ -14,3 +14,4 @@ Please find the structure of the structure of the content below:
 - [Building an Interactive Dashboard in Plotly Dash](https://github.com/nycdatasci/live-learning-sessions/tree/master/build-interactive-dashboard-in-plotly-dash)
 - [How Strong is Your Machine Learning Model](https://github.com/nycdatasci/live-learning-sessions/tree/master/how-strong-is-your-machine-learning-model)
 - [Introduction to Text Mining](https://github.com/nycdatasci/live-learning-sessions/tree/master/introduction-to-text-mining)
+- [Data Analytics through The Lens of Random Forests](https://github.com/nycdatasci/live-learning-sessions/tree/master/ml-guided-crash-analytics)
