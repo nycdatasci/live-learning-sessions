@@ -15,3 +15,4 @@ Please find the structure of the structure of the content below:
 - [How Strong is Your Machine Learning Model](https://github.com/nycdatasci/live-learning-sessions/tree/master/how-strong-is-your-machine-learning-model)
 - [Introduction to Text Mining](https://github.com/nycdatasci/live-learning-sessions/tree/master/introduction-to-text-mining)
 - [Data Analytics through The Lens of Random Forests](https://github.com/nycdatasci/live-learning-sessions/tree/master/ml-guided-crash-analytics)
+- [Introduction to Object Detection](https://github.com/nycdatasci/live-learning-sessions/tree/master/introduction-to-object-detection)
