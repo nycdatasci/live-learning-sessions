@@ -16,3 +16,4 @@ Please find the structure of the structure of the content below:
 - [Introduction to Text Mining](https://github.com/nycdatasci/live-learning-sessions/tree/master/introduction-to-text-mining)
 - [Data Analytics through The Lens of Random Forests](https://github.com/nycdatasci/live-learning-sessions/tree/master/ml-guided-crash-analytics)
 - [Introduction to Object Detection](https://github.com/nycdatasci/live-learning-sessions/tree/master/introduction-to-object-detection)
+- [Hints for Model Selection](https://github.com/nycdatasci/live-learning-sessions/tree/master/hints-for-model-selection)
