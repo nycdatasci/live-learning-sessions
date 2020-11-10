@@ -17,3 +17,4 @@ Please find the structure of the structure of the content below:
 - [Data Analytics through The Lens of Random Forests](https://github.com/nycdatasci/live-learning-sessions/tree/master/ml-guided-crash-analytics)
 - [Introduction to Object Detection](https://github.com/nycdatasci/live-learning-sessions/tree/master/introduction-to-object-detection)
 - [Hints for Model Selection](https://github.com/nycdatasci/live-learning-sessions/tree/master/hints-for-model-selection)
+- [Introduction to Time Series](https://github.com/nycdatasci/live-learning-sessions/tree/master/introduction-to-time-series)
