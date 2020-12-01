@@ -1,0 +1,51 @@
+pre {
+  font-size: 15px
+}
+
+.column-33 {
+  float: left;
+  margin: auto;
+  width: 32%;
+}
+
+.center-33 {
+  margin: auto;
+  width: 33%;
+}
+
+.right-33 {
+  float: right;
+  width: 33%;
+}
+
+.left-40 {
+  float: left;
+  width: 40%;
+}
+
+.right-60 {
+  float: right;
+  left-padding: 1%;
+  width: 59%;
+}
+
+.right-67 {
+  float: right;
+  left-padding: 1%;
+  width: 66%;
+}
+
+.title-slide {
+  background-image: url(logo-black-vertical.png);
+  background-position: 50% 0;
+  background-size: 155px 120px;
+}
+
+.title-slide h1 {
+  /*padding: 0 0;*/
+  text-align: center;
+}
+
+.title-slide h3 {
+  text-align: center;
+}
