@@ -1,0 +1,404 @@
+---
+title: "Introduction to Time Series"
+author: "NYC Data Science Academy"
+date: "5/28/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Packages to use for the lecture
+
+```{r packages, message=FALSE, warning=FALSE}
+library(IRdisplay)
+library(magrittr)
+library(tidyverse)
+library(scales)
+library(gridExtra)
+library(forecast)
+library(tseries)
+library(ggthemes)
+library(tinytex)
+
+source("helper/compare_models.R")
+source("helper/sim_random_walk.R")
+source("helper/sim_stationary_ts.R")
+```
+
+## What are Time Series?
+
+Today, we'll be looking at mostly univariate Time Series data. A (univariate) time series is a sequence of data over time, eg, $X_1, X_2, ... , X_T$, where $T$ is the time period and $X_t$ is the value at a specific time stamp, $t$.
+
+The three usual suspects of variables in Time Series are:
+
+1. Endogenous: Past values of the time series in question. Past values are also called lags.
+2. Random Noise: Accounting for uncertainty in our forecast.
+3. Exogenous: Values that are not in the time series in question, but still hold some predictive value.
+
+When working with Time Series, we will always have 1 & 2, and only sometimes will we have 3.
+
+
+## Comparing the Limitations of Traditional Modeling
+
+We'll look below at a comparison between a Linear Model and a basic Time Series Model, AR(1).
+
+The function below generates random data based on the random walk function, namely, $X_t = X_{t-1} + \epsilon_t$
+
+We'll use both models to predict on this function, and see which one does better.
+
+``` {r compare LM vs TS}
+compare.models(n=100)
+```
+
+
+
+But what is making this so much better? The fundamental underlying conditions of Time Series, that is! Namely:
+
+1. Often Time Series data has a small number of samples, which typically hurts machine learning models
+2. Machine Learning Models tend to be more of a 'black box' when it comes to interpretibility; Time Series models are very simple and easy to explain.
+3. Predicting using Time Series correctly accounts for the uncertainty in forecasting as our horizon expands.
+
+
+### Understanding the Parts of the Time Series Data: Autocorrelation and Autocovariance
+
+Two important concepts to our time series data are Autocorrelation and auto-covariance. These refer to the correlation and covariance between two observations of our time series data. These both have to do with the underlying relationship our data has with time.
+
+Typically, we try to focus on _autocorrelation_, or, what is the correlation between $X_t$ and $X_{t+n}$ for some integer $n$. However, sometimes there are correlations that are slightly hidden, and we need to adjust our data in order to see this relationship. We call this _partial autocorrelation_.
+
+_Partial Autocorrelation_ is when you compute the correlation while adjusting for previous periods (also referred to as "lags"), or, the autocorrelation between $X_t$ and $X_{t+n}$ adjusting for the correlation of $X_t$ and $X_{t+1}, ..., X_{t+n-1}$.
+
+We'll use both Autocorrelation and Partial Autocorrelation for visualizations to test some assumptions about Time Series. We typically refer to these plots as ACF and PACF plots.
+
+Let's apply this idea to our sample random walk formula: $X_t = X_{t-1} + \epsilon_t$.
+
+```{r Random Walk Generate}
+random.walk <- sim.random.walk()
+
+random.walk %>% ggplot(aes(t,X)) + geom_line() + xlab("T") + ylab("X") + ggtitle("Time Series Plot")
+```
+
+And now we'll generate the graphs:
+
+```{r ACF PACF}
+g1 <- ggAcf(random.walk$X,type="correlation") + ggtitle("Autocorrelation ACF Plot") # ACF
+g2 <- ggAcf(random.walk$X,type="partial") + ggtitle("Partial Autocorrelation PACF Plot") # PACF
+grid.arrange(g1,g2)
+```
+
+### Understanding the Parts of Time Series Data: Stationarity
+
+Stationarity is an important, complex concept, but for our purposes we can think of it as examining whether the distribution of our data is consistent over time. There are two main forms of stationarity that we'll deal with.
+
+1. __Strictly Stationary__
+The Cumulative Distribution Function of the Data does not depend on time, or:
+
+$$F_X(X_1,...,X_T)=F_X(X_{1+\Delta},...,X_{T+\Delta}) \forall \Delta \in \mathbb{R}$$
+2. __Weakly Stationarity__:
+
+- the mean of the time series is constant: $E(X_t) = E(X_{t+\Delta})$
+
+- the autocorrelation and autocovariance only depends on the time difference between points: $ACF(X_t,X_{t+\Delta-1}) = ACF(X_1, X_\Delta)$.
+
+- the time series has a finite variance: $Var(X_\Delta) < \infty \forall \Delta \in \mathbb{R}$.
+
+If all three of these conditions are met, then we consider the timeseries to be weakly stationary.
+
+But how do we check? Refer to the code below:
+
+```{r create TS examples}
+time_series_df = sim.stationary.example(n=1000)
+head(time_series_df)
+```
+
+Now try to plot the time series below!
+
+```{r Plot TS}
+g1 <- ggplot(time_series_df,aes(x=t,y=X1)) + geom_line() + xlab("t") + ylab("X1") + ggtitle("Nonstationary")
+g2 <- ggplot(time_series_df,aes(x=t,y=X3)) + geom_line() + xlab("t") + ylab("X3") + ggtitle("Stationary")
+grid.arrange(g1,g2)
+```
+
+Now we want to look at the ACF plot to see how the correlation dies off.
+
+```{r TS examples ACF PACF}
+g1 <- ggAcf(time_series_df$X1, type="correlation") + ggtitle("X1 Non Stationary")
+g2 <- ggAcf(time_series_df$X3, type="correlation") + ggtitle("X3 Stationary")
+grid.arrange(g1,g2)
+```
+
+But eyeballs are only so good! We should have a better way of determining whether something is stationary or not; for that reason we introduct the __Unit Root Test__, more specifically, the Augmented Dickey-Fuller Test.
+
+We can see below that our stationary example produces a small, significant p-value
+```{r Stationary Dicky Fuller}
+adf.test(time_series_df$X3)
+```
+
+While the non-stationary example has a large, non-significant p-value.
+
+```{r Non Stationary Dicky Fuller}
+adf.test(time_series_df$X1)
+```
+
+The null hypothesis in this case is that the ___data is non stationary___ a significant p-value will allow us to reject the null hypothesis, and claim that ___the data is stationary___. 
+
+But even if your data is non stationary, there are things we can do to help it out!
+
+## Transforming Stationarity
+
+There are several different ways we can attempt to transform our data in order to make it stationary. Two of the ones we'll cover today are _Differencing_ and _Detrending_.
+
+#### Differencing
+
+Differencing is exactly what it sounds like: taking differences between successive values in our time series. The order of differencing is defined as $n$, for $X_t - X_{t-n}$, for some integer $n$. 
+
+We'll use our random walk example from above, and try to transform it into being stationary.
+
+We know that: $X_t = X_{t-1} + \epsilon_t$. So if we difference with an order of $1$, we'll get:
+
+$$ \hat{X_t} = X_t - X_{t-1} = \epsilon_t $$.
+
+Now lets do it in code!
+
+```{r differencing example}
+difference <- time_series_df$X1 - lag(time_series_df$X1, 1)
+```
+
+```{r differencing plot example}
+g1 <- ggAcf(time_series_df$X1, type="correlation")
+g2 <- ggAcf(difference,type="correlation")
+grid.arrange(g1,g2)
+```
+
+#### Detrending
+
+A trend is a deterministic relationship with time. Whether it be seasonality, a drift in a random walk, or some other 'trend', the process of detrending is removing these relationships. 
+
+We can create a toy example by considering the following equation: $X_t = B_t + \epsilon_t$ for $\epsilon_t \overset{iid}\sim N(0,\sigma^2)$.
+
+Much like the other process, our detrending renders the above equation in the form below:
+
+$$\hat{X_t} = X_t - B_t = \epsilon_t$$.
+
+Now lets do it in code!
+
+```{r detrending example}
+linear_model = lm(X2 ~ t, data = time_series_df)
+detrended = resid(linear_model)
+```
+
+```{r detrending plot example}
+g1 <- ggAcf(time_series_df$X1, type="correlation")
+g2 <- ggAcf(detrended,type="correlation")
+grid.arrange(g1,g2)
+```
+
+## Basic Model Types: AR(p), MA(q), ARMA(p,q), ARIMA(p,d,q), Decomposition
+
+#### Autoregressive AR(p) Models
+
+AR models specify $X_t$ as a function of lagged time series values $X_{t-1}$, $X_{t-2}$, ... or, written out: 
+
+$$X_t=\mu+\phi_1 X_{t-1}+...+\phi_p X_{t-p}+\epsilon_t$$
+
+where $\mu$ is a mean term and $\epsilon_t\overset{iid}\sim N(0,\sigma^2)$ is a random error.
+
+When fitting an AR model the key choice is p, the number of lags to include.
+
+
+#### Moving Average MA(q) Models
+
+MA models on the other hand, specify $X_t$ using random noise lags:
+
+$$X_t=\mu+\epsilon_t+\Theta_1\epsilon_{t-1}+...+\Theta_q\epsilon_{t-q}$$
+
+where $\mu$ is a mean term and $\epsilon_t\overset{iid}\sim N(0,\sigma^2)$ is a random error.
+
+When fitting a MA model, the hyperparameter q will be the most important, representing the number of random shock lags.
+
+
+#### Autoregressive Moving Average ARMA(p,q) Models
+
+The ARMA(p,q) model is a combination of an AR and MA model:
+
+$$X_t=\mu+\phi_1 X_{t-1}+...+\phi_p X_{t-p}+\epsilon_t+\Theta_1\epsilon_{t-1}+...+\Theta_q\epsilon_{t-q}$$
+
+where $\mu$ is a mean term and $\epsilon_t\overset{iid}\sim N(0,\sigma^2)$ is a random error.
+
+When fitting an ARMA model, we need to choose two things: p, the number of AR lags, and q, the number of MA lags.
+
+
+## Autoregressive Integrated Moving Average ARIMA(p,d,q) Models
+
+ARIMA(p,d,q) is an ARMA model with differencing.
+
+Our main hyperparameters are: p, the number of AR lags, q, the number of MA lags, and d, the number of differences to use.
+
+
+#### Decomposition Models
+
+Decomposition models specify $X_t$ as a combination of a trend component ($T_t$), seasonal component ($S_t$), and an error component/residual ($E_t$) or, written out 
+$$X_t=f(T_t,S_t,E_t)$$.
+
+Common decomposition forms are: $X_t=T_t+S_t+E_t$ or $X_t=T_t*S_t*E_t$ (where then take logs to recover the additive form).
+
+Estimating these trend components can be done in many ways: exponential smoothing, state space models/Kalman filtering, Seasonal Trend Loess (STL) models, etc.
+
+Due to their ease and flexibility, we'll only be covering STL models here today.
+
+## Fitting AR/MA/ARMA/ARIMA Models
+
+#### The Box Jenkins Method
+
+We'll outline below how to fit these various Time Series models on a real data set--the process we'll be using is a generic strategy called the Box Jenkins method. 
+
+This strategy will show us several steps to identify the p, d, and q parameters that we want to find, as well as:
+
+- Determine whether the Time Series is Stationary or not
+
+- Determine p, d, q, of the TS based on:
+    + Differencing and Detrending the Time Series to find d
+    + Considering the ACF/PACF to determine p and q
+    + Using model fit scores like AIC or BIC to select the best hyperparameters, p,d,q.
+
+- and finally, checking model fit with the Ljung-Box Test.
+
+```{r load csv}
+mass_UR = read.csv("./data/Mass Monthly Unemployment Rate.csv")
+head(mass_UR)
+```
+
+But first (of course) is data cleaning! Lets check the date class, and convert it to the date type.
+
+```{r data date conversion}
+class(mass_UR$DATE)
+mass_UR$DATE = as.Date(mass_UR$DATE)
+```
+
+Now we can start!
+
+#### Check Stationarity
+
+Remember, we want to check the TS plot, the ACF plot, and run the ADF test.
+
+```{r check plots}
+ggplot(mass_UR,aes(DATE, MAURN)) + geom_line() + xlab("Date (monthly increments)") + ylab("Monthly Unemployment Rate") + ggtitle("Monthly Unemployment Rate in MASS")
+```
+
+```{r example ACF}
+ggAcf(mass_UR$MAURN, type="correlation")
+```
+
+```{r example ADF}
+adf.test(mass_UR$MAURN)
+```
+
+
+#### Identifying Parameters and Transforming for Stationarity
+
+```{r AR model}
+ar_model = auto.arima(mass_UR$MAURN, max.d = 0, max.q = 0, allowdrift=T)
+ar_model
+```
+
+```{r MA model}
+ma_model = auto.arima(mass_UR$MAURN, max.d = 0, max.p = 0, allowdrift=T)
+ma_model
+```
+
+```{r ARMA model}
+arma_model = auto.arima(mass_UR$MAURN, max.d = 0, allowdrift=T)
+arma_model
+```
+
+```{r ARIMA model}
+arima_model = auto.arima(mass_UR$MAURN, allowdrift=T)
+arima_model
+```
+
+
+#### Check Residuals
+
+```{r calculate residuals}
+ar_resid = resid(ar_model)
+ma_resid = resid(ma_model)
+arma_resid = resid(arma_model)
+arima_resid = resid(arima_model)
+```
+
+```{r plot PACF residuals}
+ggAcf(ar_resid, type="partial")
+ggAcf(ma_resid, type="partial")
+ggAcf(arma_resid, type="partial")
+ggAcf(arima_resid, type="partial")
+```
+
+Note: the Ljung Box test has the __opposite__ results as the ADF test, so we are looking for _large_ p-values here. Small p-values here mean that our residuals are misbehaved (i.e., not identical to white noise), which could either be from poor model fit, or from non-stationary data.
+
+```{r Ljung Box test residuals}
+Box.test(ar_resid,type="Ljung-Box",lag=1)
+Box.test(ma_resid,type="Ljung-Box",lag=1)
+Box.test(arma_resid,type="Ljung-Box",lag=1)
+Box.test(arima_resid,type="Ljung-Box",lag=1)
+```
+
+
+#### Forecast!
+
+```{r making forecasts}
+ar_forecast = forecast(ar_model,h=24,level=80)
+ma_forecast = forecast(ma_model,h=24,level=80)
+arma_forecast = forecast(arma_model,h=24,level=80)
+arima_forecast = forecast(arima_model,h=24,level=80)
+```
+
+```{r plotting forecasts}
+g1 <- autoplot(ar_forecast)
+g2 <- autoplot(ma_forecast)
+g3 <- autoplot(arma_forecast)
+g4 <- autoplot(arima_forecast)
+grid.arrange(g1,g2,g3,g4,nrow=2,ncol=2)
+```
+
+
+#### Fitting STL Model
+
+```{r transform TS object}
+mass_UR_ts = ts(mass_UR$MAURN,frequency=12)
+```
+
+```{r fit STL model}
+stl_model = stl(mass_UR_ts,s.window="periodic")
+```
+
+```{r plot model}
+autoplot(stl_model)
+```
+
+```{r STL forecast}
+stl_forecast = forecast(stl_model,h=48,level=80)
+autoplot(stl_forecast)
+```
+
+And that's it!
+
+
+## Where to go Next
+
+- Advanced time series models
+  - ARCH, GARCH, etc. that model changing variance over time
+- Vector Autoregression (VAR)
+  - For multivariate i.e. multiple time series and modeling dependencies between them
+- Machine Learning
+  - How to do CV with time series
+  - Neural networks for sequence data (LSTMs, etc.)
+- Spatial Statistics
+  - Generalize time dependence to spatial dependence in multiple dimensions
+- Econometrics
+  - Cointegration
+  - Granger Causality
+  - Serial correlation
+  - Regression with time series data
+- Bayesian time series
+
