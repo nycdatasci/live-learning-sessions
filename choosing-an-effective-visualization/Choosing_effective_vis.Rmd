@@ -1,0 +1,492 @@
+---
+title: "Choosing an effective visualization"
+author: "NYC Data Science Academy"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Introduction 
+
+The intent of a visualization is to effectively communicate relevant information in an easy to interpret manner for the audience, and supplements the other forms of communication. To choose an effective visualization you need to keep in mind the **question or business problem** you are addressing, the **relevant information** that you generate/collect to answer that question, and your **target audience**.
+
+A good visualization should establish two aspects of the data being presented:
+1) Effectively communicate relevant information: The visualization is easily interpretable and shares information (metrics/values/trends) in a way that is important for the specific domain objective.
+2) For the audience: The choice of how to create the visualization keeps in mind the audience and which information you are trying to share with that audience.
+
+
+
+## 1 Load libraries
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(scales)
+library(RColorBrewer)
+library(dplyr)
+library(lubridate)
+library(grid)
+library(plotly)
+```
+
+## 2 Example for bar plot
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+tweets <- read.csv('https://graderdata.s3.amazonaws.com/Tweets.csv',stringsAsFactors = F)
+```
+### 2.1 Table
+
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+neg_data <- tweets %>%
+  mutate(negative = airline_sentiment == 'negative') %>%
+  group_by(airline) %>% 
+  summarise(n = n(), perc_neg = sum(negative)*100/n)
+```
+
+### 2.2 Bar plot 
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+neg_data %>% 
+  ggplot(aes(x = airline, fill = airline, y = perc_neg)) +
+  geom_col() +
+  theme(legend.position = 'none',
+        axis.title = element_blank(),
+        axis.text = element_text(size = 13),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  ggtitle('Negative Sentiment of Airlines') +
+  geom_text(aes(airline, perc_neg, label = comma(perc_neg)), vjust = 1.5, size = 4.5) +
+  scale_fill_brewer(palette = 'Blues')  +
+  scale_y_continuous(labels = function(x) paste0(x, '%'))
+```
+
+### 2.3 Bar plot reordered
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+neg_data %>% 
+  ggplot(aes(x = reorder(airline, -perc_neg), fill = airline, y = perc_neg)) + #reorder airline by descending perc_neg
+  geom_col() +
+  theme(legend.position = 'none',
+        axis.title = element_blank(),
+        axis.text = element_text(size = 13),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  ggtitle('Negative Sentiment of Airlines') +
+  geom_text(aes(airline, perc_neg, label = comma(perc_neg)), vjust = 1.5, size = 4.5) +
+  scale_fill_brewer(palette = 'Blues')  +
+  scale_y_continuous(labels = function(x) paste0(x, '%'))
+```
+
+### 2.4 Closer look to top 3 with the most negative tweets
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+neg_data %>% 
+  filter(airline %in% c('US Airways', 'American', 'United')) %>%
+  ggplot(aes(x = reorder(airline, -perc_neg), fill = airline, y = perc_neg)) +
+  geom_col() +
+  theme(legend.position = 'none',
+        axis.title = element_blank(),
+        axis.text = element_text(size = 13),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  ggtitle('Negative Sentiment of Airlines') +
+  geom_text(aes(airline, perc_neg, label = comma(perc_neg)), vjust = 1.5, size = 4.5) +
+  scale_fill_brewer(palette = 'Blues')  +
+  scale_y_continuous(labels = function(x) paste0(x, '%'))
+```
+
+
+### 2.5 Closer look to top 3 with the most negative tweets detail of the differences
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+neg_data %>% 
+  filter(airline %in% c('US Airways', 'American', 'United')) %>%
+  ggplot(aes(x = reorder(airline, -perc_neg), fill = airline, y = perc_neg)) +
+  geom_col() +
+  theme(legend.position = 'none',
+        axis.title = element_blank(),
+        axis.text = element_text(size = 13),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  ggtitle('Negative Sentiment of Airlines') +
+  geom_text(aes(airline, perc_neg, label = comma(perc_neg)), vjust = 1.5, size = 4.5) +
+  scale_fill_brewer(palette = 'Blues')  +
+  scale_y_continuous(labels = function(x) paste0(x, '%')) +
+  coord_cartesian(ylim = c(65,80))
+```
+## 3. Example for waterfall chart
+
+### 3.1 Produce a toy dataset
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+balance <- data.frame(desc = c("Starting Cash", "Sales", "Refunds", "Payouts",
+                               "Court Losses", "Court Wins", "Contracts", "End Cash"),
+                      amount = c(2000, 3400, -1100, -100, -6600, 3800, 1400, 2800)) #create dataframe
+balance$desc <- factor(balance$desc, levels = balance$desc) #make desc a factor
+balance$id <- seq_along(balance$amount) #add ID variable
+balance$type <- ifelse(balance$amount > 0, "in", "out") #add type variable
+balance$type <- factor(balance$type, levels = c("out", "in", "net")) #make type a factor
+balance[balance$desc %in% c("Starting Cash", "End Cash"), "type"] <- "net"
+balance$end <- cumsum(balance$amount) #add end variable, cumulative sum of the amounts
+balance$end <- c(head(balance$end, -1), 0) #end of End Cash == 0
+balance$start <- c(0, head(balance$end, -1)) #add a start variable
+balance <- balance[, c(3, 1, 4, 6, 5, 2)] #switch the order of the columns
+
+strwr <- function(str) gsub(" ", "\n", str)
+```
+
+### 3.2 Regular bar plot
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+ggplot(balance, aes(x = desc, y = amount, fill = type)) + 
+  geom_col() +
+  scale_y_continuous("") +
+  scale_x_discrete("", breaks = levels(balance$desc),
+                   labels = strwr(levels(balance$desc))) +
+  theme(axis.ticks = element_blank(),
+        axis.text = element_text(size = 13),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  geom_text(data = balance, 
+            aes(id, amount, label = comma(amount)), 
+            vjust = 1, size = 4)+
+  ggtitle('Company Cash Position') +
+  scale_fill_brewer(palette = 'Set1')
+```
+
+### 3.3 Waterfall chart
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+ggplot(balance, aes(fill = type)) +
+  geom_rect(aes(x = desc, xmin = id - 0.45, xmax = id + 0.45, ymin = end, ymax = start)) + 
+  scale_y_continuous("") +
+  scale_x_discrete("", breaks = levels(balance$desc), labels = strwr(levels(balance$desc))) +
+  theme(axis.text = element_text(size = 13),
+        axis.ticks = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  geom_text(data = subset(balance, type == "in"), 
+            aes(id, end, label = comma(amount)), vjust = 1.5, size = 4) +
+  geom_text(data = subset(balance,type == "out"), 
+            aes(id, end, label = comma(amount)), vjust = -0.5, size = 4) + 
+  geom_text(data = subset(balance,type == "net" & id == min(id)), 
+            aes(id, end, label = comma(end), 
+                vjust = ifelse(end < start, 1.5, -0.3)),vjust = 1.5, size = 4) + 
+  geom_text(data = subset(balance,type == "net" & id == max(id)), 
+            aes(id, start, label = comma(start), 
+                vjust = ifelse(end < start, -0.3, 1)), vjust = 1.5, size = 4) +
+  ggtitle('Company Cash Position') +
+  scale_fill_brewer(palette = 'Set1')
+```
+
+## 4. Example of scatter plot and regression lines with the diamonds dataset
+
+### 4.1 Simple scatter plot
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+ggplot(diamonds, aes(carat, price)) + 
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+### 4.2 First simple fix- zoom in a smaller region
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+ggplot(diamonds, aes(carat, price)) + 
+  geom_point() +
+  geom_smooth(method = "lm") + 
+  ylim(0, 20000) + xlim(0, 3.5)
+```
+
+### 4.3 Add categorical features to get insights
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+#Adding the 'color' feature
+ggplot(diamonds, aes(carat, price, color = color)) + 
+  geom_point(alpha = 0.1) +
+  geom_smooth(method = "lm") +
+  ylim(0, 20000) + xlim(0, 3.5) +
+  scale_color_brewer(palette="YlOrBr")
+
+#Adding the 'cut' feature
+ggplot(diamonds, aes(carat, price, color = reorder(cut, desc(cut)))) + #reorder factors
+  geom_point(alpha = 0.1) +
+  geom_smooth(method = "lm") +
+  ylim(0, 20000) + xlim(0, 3.5)  +
+  labs(color = "cut") #rename the label for the legend 
+```
+
+### 4.4 To highlight the "Fair" class, can combine all the other classes
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+diamonds %>%
+  mutate(is_fair = (cut == "Fair")) %>% #add variable is_fair that combines the cut classes into binary classification
+  ggplot(aes(carat, price, color = is_fair)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F) +
+  ylim(0, 20000) + xlim(0, 3.5)
+
+#Too much overlap of different classes,change alpha to make it clearer
+diamonds %>%
+  mutate(is_fair = (cut == "Fair")) %>%
+  ggplot(aes(carat, price, color = is_fair)) + 
+  geom_point(alpha = 0.1) +
+  geom_smooth(method = "lm", se = F) + 
+  ylim(0, 20000) + xlim(0, 3.5)
+
+#Because "Fair" is minority, we might not want to fade 
+#its color as much as other kinds of cut. Adjust the range of alpha and size to make it better
+diamonds %>%
+  mutate(is_fair = (cut == "Fair")) %>%
+  ggplot(aes(carat, price, color = is_fair)) + 
+  geom_point(aes(alpha = is_fair, size = is_fair)) +
+  geom_smooth(method = "lm", se = F) +
+  scale_size_discrete(range = c(0.5, 1.5)) + #adjusting size for each category
+  scale_alpha_discrete(range = c(0.05, 0.5)) + #adjusting alpha for each category
+  ylim(0, 20000) + xlim(0, 3.5)
+```
+
+
+## 5. Supplier Market Share for pie chart example
+
+### 5.1 Produce a toy dataset
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+ms <- data.frame(Supplier = c('Supplier A','Supplier B','Supplier C','Supplier D'),
+                 prop = c(34, 31, 9, 26)) 
+```
+### 5.2 Pie chart
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+ggplot(ms, aes(x = "", y = prop, fill = Supplier)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0) +
+  scale_fill_brewer(palette = 'Set2') +
+  theme_void() +
+  ggtitle('Supplier Market Share')
+
+# Adding the actual numbers might help (not enough)
+ggplot(ms, aes(x = "", y = prop, fill = Supplier)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(prop, '%')), color = "white",
+            position = position_stack(vjust = 0.5),
+            size = 6) +
+  scale_fill_brewer(palette = 'Set2') +
+  theme_void() +
+  ggtitle('Supplier Market Share')
+
+#modify the shape to improve a little
+ggplot(ms, aes(x = 2, y = prop, fill = Supplier)) +
+  geom_bar(stat = "identity", color = "white") +
+  coord_polar(theta = "y", start = 0)+
+  geom_text(aes(label = paste0(prop, '%')), color = "white",
+            position = position_stack(vjust = 0.5), size = 6) +
+  scale_fill_brewer(palette = 'Set2') +
+  theme_void() +
+  xlim(0.5, 2.5) +
+  ggtitle('Supplier Market Share')
+```
+
+### 5.3 Use a bar plot instead!
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+ms %>% 
+  ggplot(aes(x = prop, y = reorder(Supplier, prop),
+             fill = Supplier, text = paste0(prop, '%'))) +
+  geom_col() +
+  theme(axis.ticks = element_blank(),
+        axis.text.x = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        legend.position = 'none') +
+  ggtitle('Supplier Market Share') +
+  scale_fill_brewer(palette = 'Set2') +
+  geom_text(aes(label = paste0(prop, '%')), 
+            position = position_stack(vjust = 0.9), size = 4) + 
+  xlab('') + ylab('')
+```
+
+## 6. Economics example for a plot with a secondary y-axis
+
+### 6.1 Plot with a secondary y-axis
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+economics %>% 
+  filter(year(date) %in% c(2005:2010), month(economics$date) == 12) %>% 
+  mutate(year = year(date)) %>% 
+  ggplot() +
+  geom_bar(aes(x = year, y = unemploy, fill = 'PCE'), stat = 'identity') +
+  geom_point(aes(x = year, y = pce*2), color = 'blue4', size = 3) +
+  geom_line(aes(x = year, y = pce*2, linetype = '# of Unemployees'), color = 'blue4', size = 1) +
+  scale_y_continuous(name = 'Personal Consumption Expenditures',
+                     sec.axis = sec_axis(~.*.5, name = '# of Unemployees')) +
+  scale_fill_manual(name = 'PCE',values = 'steelblue2') +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_text(color = 'grey50', size = 13),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(color = 'grey50'),
+        axis.text = element_text(color = 'grey50', size = 13),
+        axis.line.y = element_line(color = 'grey50'),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 13, color = 'grey50'),
+        legend.position = 'top')
+```
+
+### 6.2 Combined plots without showing secondary y-axis
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+economics %>% 
+  filter(year(date) %in% c(2005:2010), month(economics$date) == 12) %>% 
+  mutate(year = year(date)) %>% 
+  ggplot() +
+  geom_bar(aes(x = year, y = unemploy), stat = 'identity', fill = 'steelblue2') +
+  geom_text(aes(x = year, y = unemploy, label = unemploy), color = "white",
+            vjust = 1.5, size = 4) +
+  geom_point(aes(x = year, y = pce*2), color = 'blue4', size = 3) +
+  geom_line(aes(x = year, y = pce*2), color = 'blue4', size = 1) +
+  geom_text(aes(x = year, y = pce*2, label = pce), color = "blue4",
+            vjust =- .5, size = 4) +
+  scale_y_continuous(name = 'Personal Consumption Expenditures',
+                     sec.axis = sec_axis(~.*.5, name = '# of Unemployees')) +
+  theme(axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x = element_text(color = 'grey50', size = 13),
+        axis.text.y = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  annotation_custom(grobTree(textGrob("# of Unemployees\n(thousand)", x = 0.1,  y = 0.95, hjust = 0.1,
+                                      gp = gpar(col = "blue4", fontsize = 13, fontface = 'bold')))) +
+  annotation_custom(grobTree(textGrob("Personal Consumption\nExpenditures\n(Billions)", 
+                                      x = 0.1,  y = 0.5, hjust = 0.1,
+                                      gp = gpar(col = "steelblue2", fontsize = 13, fontface = 'bold'))))
+
+```
+
+
+## 7. Example of Slopegraph with employee feedback
+
+
+### 7.1 Produce a toy dataset
+
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+employ_fb <- data.frame(year = c(rep(2014, 7), rep(2015, 7)),
+                        category = rep(c('Peers', 'Culture', 'Work environment', 'Leadership',
+                                         'Career development', 'Rewards & recognition', 'Perf management'), 2),
+                        percent = c(.85, .8, .76, .59, .49, .41, .33, .91, .96, .75, .62, .33, .45, .42))
+```
+### 7.2 Bar plot
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+ggplot(employ_fb, aes(x = category, y = percent, fill = as.factor(year))) +
+  geom_bar(stat = 'identity', position = 'dodge') +
+  scale_fill_manual(name = 'Year', values = c('gray60', 'skyblue')) +
+  xlab('Survey category') +
+  ylab('Percent favorable') +
+  ggtitle('Employee feedback over time') +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 15),
+    axis.title = element_text(size = 16),
+    plot.title = element_text(size = 16),
+    legend.title = element_text(size = 15),
+    legend.text = element_text(size = 12))
+```
+
+### 7.3 Slopegraph
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+ggplot(employ_fb) +  
+  geom_line(aes(x = as.factor(year), y = percent, group = category, color = category), size = 2, color = 'gray45') + 
+  geom_point(aes(x = as.factor(year), y = percent, color = category), size = 5, color='gray45') + 
+  geom_point(aes(x = as.factor(2014), y = .49), size = 5, color = 'orange') + 
+  geom_point(aes(x = as.factor(2015), y = .33), size = 5, color = 'orange') + 
+  geom_line(data = subset(employ_fb, category == 'Career development'),
+            aes(x = as.factor(year), y = percent, group = category), size = 2, color=  'orange') + 
+  theme_minimal(base_size = 18) + 
+  geom_text(data = subset(employ_fb, year == 2014 & category %in% c('Peers', 'Culture')), 
+            aes(x = as.factor(year), y = percent, 
+                label = paste(category, paste0(percent*100, '%'))), color = 'gray45', size = 5, hjust = 1.2) +
+  geom_text(data = subset(employ_fb, year == 2014 & !category %in% c('Peers','Culture')), 
+            aes(x = as.factor(year), y = percent, 
+                label = paste(category, paste0(percent*100, '%'))), color = 'gray45', size = 5, hjust = 1.1) +
+  geom_text(data = subset(employ_fb, year == 2015 ),
+            aes(x = as.factor(year), y = percent,
+                label = paste0(percent*100, '%')),
+            size = 5, hjust = -.5, vjust = 0.8, color = 'gray45') +
+  xlab('') +
+  theme(legend.position = "none", 
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.x = element_blank(), 
+        axis.ticks.y = element_blank(),
+        axis.ticks.x = element_blank(), 
+        axis.title.y = element_blank(), 
+        axis.text.y = element_blank(), 
+        axis.text.x = element_text(color = 'gray45', size = 15),
+        plot.title = element_text(size = 15)) +
+  annotation_custom(grobTree(textGrob("Survey category | Percent favorable", x = 0.1,  y = 0.85, hjust = -.1,
+                                      gp = gpar(col = "gray45", fontsize = 15)))) +
+  ggtitle('Employee feedback over time')
+
+```
+
+
+## 8. Example of clustered plot with bnames dataset
+
+### 8.1 Load Baby Names dataset
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+bnames_sub <- read.csv('https://graderdata.s3.amazonaws.com/bnames_sub.csv')
+```
+
+### 8.2 Clustered line plot
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+bnames_sub %>% 
+  ggplot(aes(x = year, y = total, color = sex)) +
+  geom_point(aes(shape = sex), size = 3) +
+  geom_line(size = 1) +
+  ggtitle('People called Robin who were born from 1930 to 1943') +
+  scale_x_continuous(breaks = c(1930:1943)) +
+  scale_y_continuous(breaks = c(100, 150, 200, 250, 300)) +
+  scale_color_manual(values = c('steelblue1','steelblue4')) +
+  theme(
+    axis.title = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1,size = 13),
+    axis.text.y = element_text(size = 13),
+    axis.ticks = element_line(color = 'grey80'),
+    legend.position = 'bottom',
+    legend.title = element_blank(),
+    legend.text = element_text(size = 13),
+    panel.background = element_rect(fill = 'white'),
+    panel.border = element_rect(fill = NA, color = 'grey80'),
+    panel.grid.major.y = element_line(color = 'grey80'),
+    panel.grid.major.x = element_blank(),
+    plot.title = element_text(color = 'gray30', size = 16),
+    plot.background = element_rect(color = 'grey30')
+  )
+```
+
+### 8.3 Clean up the line plot
+```{r, cache=TRUE, warning=FALSE, message=FALSE}
+bnames_sub %>% 
+  ggplot(aes(x = year, y = total, color = sex)) +
+  geom_line(size = 1) +
+  geom_text(aes(x = 1943, y = 220, label = 'male', color = 'boy'), size = 4) +
+  geom_text(aes(x = 1943, y = 350, label = 'female', color = 'girl'), size = 4) +
+  ggtitle('People called Robin') +
+  scale_y_continuous(breaks = c(100, 150, 200, 250, 300)) +
+  scale_x_continuous(breaks = seq(1930, 1943, by = 2)) +
+  scale_color_manual(values = c('steelblue1', 'steelblue4')) +
+  theme(
+    axis.line = element_line(color = 'grey80'),
+    axis.title = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 13),
+    axis.text.y = element_text(size = 13),
+    axis.ticks = element_line(color = 'grey80'),
+    legend.position = 'none',
+    panel.background = element_rect(fill = 'white'),
+    plot.title = element_text(color = 'gray30', size = 16)
+  )
+```
+

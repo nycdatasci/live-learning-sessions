@@ -19,3 +19,5 @@ Please find the structure of the structure of the content below:
 - [Hints for Model Selection](https://github.com/nycdatasci/live-learning-sessions/tree/master/hints-for-model-selection)
 - [Introduction to Time Series](https://github.com/nycdatasci/live-learning-sessions/tree/master/introduction-to-time-series)
 - [Evaluating Classification Models](https://github.com/nycdatasci/live-learning-sessions/tree/master/evaluating-classification-models)
+- [How to tackle Python coding challenges](https://github.com/nycdatasci/live-learning-sessions/tree/master/how-to-tackle-python-coding-challenges)
+- [Object Oriented Programming in Python](https://github.com/nycdatasci/live-learning-sessions/tree/master/object-oriented-programming-in-python)
