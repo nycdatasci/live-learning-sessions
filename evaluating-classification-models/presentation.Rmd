@@ -1,7 +1,7 @@
 ---
 title: "Evaluating Classification Models"
-author: "Carlos Afonso -- Data Science Instructor"
-date: "<br>November 25, 2020"
+author: "Carlos Afonso -- Data Science Instructor<br><br>NYC Data Science Academy"
+date: "<br>September 1, 2021"
 output:
   xaringan::moon_reader:
     css: [default, metropolis, metropolis-fonts, "custom.css"]
