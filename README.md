@@ -21,4 +21,4 @@ Please find the structure of the structure of the content below:
 - [Evaluating Classification Models](https://github.com/nycdatasci/live-learning-sessions/tree/master/evaluating-classification-models)
 - [How to tackle Python coding challenges](https://github.com/nycdatasci/live-learning-sessions/tree/master/how-to-tackle-python-coding-challenges)
 - [Object Oriented Programming in Python](https://github.com/nycdatasci/live-learning-sessions/tree/master/object-oriented-programming-in-python)
--[Statistical testing for data analysis](https://github.com/nycdatasci/live-learning-sessions/tree/master/statistical-testing-for-data-analysis)
+- [Statistical testing for data analysis](https://github.com/nycdatasci/live-learning-sessions/tree/master/statistical-testing-for-data-analysis)

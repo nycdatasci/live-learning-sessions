@@ -5,4 +5,3 @@ __pycache__/
 .vscode/
 *.Rhistory
 *.Rproj.user/*
-ab-testing-for-data-science-with-python-and-r/.Rproj.user/*
