@@ -3,3 +3,6 @@ __pycache__/
 *.csv
 *.ipynb_checkpoints
 .vscode/
+*.Rhistory
+*.Rproj.user/*
+ab-testing-for-data-science-with-python-and-r/.Rproj.user/*
