@@ -22,3 +22,4 @@ Please find the structure of the structure of the content below:
 - [How to tackle Python coding challenges](https://github.com/nycdatasci/live-learning-sessions/tree/master/how-to-tackle-python-coding-challenges)
 - [Object Oriented Programming in Python](https://github.com/nycdatasci/live-learning-sessions/tree/master/object-oriented-programming-in-python)
 - [Statistical testing for data analysis](https://github.com/nycdatasci/live-learning-sessions/tree/master/statistical-testing-for-data-analysis)
+- [Marketing Basket Analysis and Association Rules](https://github.com/nycdatasci/live-learning-sessions/tree/master/association-rules-and-r-code)
